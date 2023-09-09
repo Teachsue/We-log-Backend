@@ -23,6 +23,11 @@ const createPosts = async (
   return posting;
 };
 
+const getAllPosts = async (req, res) => {
+  const getAllPosts = await postDao.getAllPosts();
+  return getAllPosts;
+};
 module.exports = {
   createPosts,
+  getAllPosts,
 };
