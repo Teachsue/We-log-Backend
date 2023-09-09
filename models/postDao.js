@@ -78,7 +78,24 @@ INNER JOIN users ON posts.user_id = users.id;
   }
 };
 
+const getMyPosts = async (userId) => {
+  const results = await dataSource.query(
+    `
+  SELECT
+  id AS postId,
+  thumbnail_image AS thumbnailImage,
+  title,
+  content,
+  DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
+  FROM posts
+  WHERE user_id = 1`,
+    [userId]
+  );
+  return results;
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
+  getMyPosts,
 };

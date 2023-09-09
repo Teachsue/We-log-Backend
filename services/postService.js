@@ -27,7 +27,14 @@ const getAllPosts = async (req, res) => {
   const getAllPosts = await postDao.getAllPosts();
   return getAllPosts;
 };
+
+const getMyPosts = async (userId) => {
+  const getMyPosts = await postDao.getMyPosts(userId);
+  return getMyPosts;
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
+  getMyPosts,
 };
