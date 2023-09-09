@@ -9,5 +9,6 @@ router.get("/getMyPosts", postController.getMyPosts);
 router.get("/getUserPosts", postController.getUserPosts);
 router.post("/like/:postId", postController.likePostById);
 router.get("/getLikePostByMe", postController.getLikePostByMe);
+router.get("/getTemporaryPost", postController.getTemporaryPost);
 
 module.exports = router;
