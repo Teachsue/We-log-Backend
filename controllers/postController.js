@@ -59,9 +59,18 @@ const getUserPosts = async (req, res) => {
   }
 };
 
+const likePostById = async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.body;
+
+  await postService.likePostById(postId, userId);
+  return res.status(201).json({ message: "LIKE_SUCCESS" });
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
   getUserPosts,
+  likePostById,
 };

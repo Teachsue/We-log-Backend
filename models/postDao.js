@@ -112,9 +112,37 @@ const getUserPosts = async (postId, userId) => {
   return results;
 };
 
+const likePostById = async (postId, userId) => {
+  try {
+    const existingLike = await dataSource.query(
+      `SELECT * FROM post_like WHERE post_id = ? AND user_id = ?`,
+      [postId, userId]
+    );
+
+    if (existingLike.length > 0) {
+      await dataSource.query(
+        `DELETE FROM post_like WHERE post_id = ? AND user_id = ?`,
+        [postId, userId]
+      );
+      return { message: "LIKE_CANCEL" };
+    } else {
+      await dataSource.query(
+        `INSERT INTO post_like (user_id, post_id) VALUES (?, ?)`,
+        [userId, postId]
+      );
+      return { message: "LIKE" };
+    }
+  } catch (err) {
+    const error = new Error("INVALID_DATA_INPUT");
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
   getUserPosts,
+  likePostById,
 };
