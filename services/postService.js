@@ -33,8 +33,14 @@ const getMyPosts = async (userId) => {
   return getMyPosts;
 };
 
+const getUserPosts = async (userId) => {
+  const getUserPosts = await postDao.getUserPosts(userId);
+  return getUserPosts;
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
+  getUserPosts,
 };
