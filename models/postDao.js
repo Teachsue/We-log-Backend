@@ -94,8 +94,27 @@ const getMyPosts = async (userId) => {
   return results;
 };
 
+const getUserPosts = async (postId, userId) => {
+  const results = await dataSource.query(
+    `
+    SELECT
+    posts.id AS postId,
+    boardTypes.id AS boardTypeId,
+    users.name AS userName,
+    DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt,
+    posts.content AS content
+    FROM posts
+    INNER JOIN users ON posts.user_id = users.id
+    INNER JOIN boardTypes ON posts.boardType_id = boardTypes.id
+    WHERE posts.id = 1 AND users.id = 1`,
+    [postId, userId]
+  );
+  return results;
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
+  getUserPosts,
 };

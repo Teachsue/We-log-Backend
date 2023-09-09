@@ -49,8 +49,19 @@ const getMyPosts = async (req, res) => {
   }
 };
 
+const getUserPosts = async (req, res) => {
+  try {
+    const result = await postService.getUserPosts();
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 400).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
+  getUserPosts,
 };
