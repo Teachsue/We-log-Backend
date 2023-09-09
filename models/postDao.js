@@ -161,6 +161,28 @@ const getLikePostByMe = async (postId, userId) => {
   }
 };
 
+const getTemporaryPost = async (postId, userId) => {
+  try {
+    return await dataSource.query(
+      `
+      SELECT
+      posts.id AS postId,
+      posts.thumbnail_image AS thumbnailImage,
+      posts.title AS title,
+      posts.content AS content,
+      DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
+      FROM posts
+      INNER JOIN post_status ON posts.status_id = post_status.id
+      WHERE post_status.id = 2`,
+      [userId]
+    );
+  } catch (err) {
+    const error = new Error("INVALID_DATA_INPUT");
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -168,4 +190,5 @@ module.exports = {
   getUserPosts,
   likePostById,
   getLikePostByMe,
+  getTemporaryPost,
 };

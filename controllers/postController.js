@@ -77,6 +77,16 @@ const getLikePostByMe = async (req, res) => {
   }
 };
 
+const getTemporaryPost = async (req, res) => {
+  try {
+    const result = await postService.getTemporaryPost();
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 400).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -84,4 +94,5 @@ module.exports = {
   getUserPosts,
   likePostById,
   getLikePostByMe,
+  getTemporaryPost,
 };
