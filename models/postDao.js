@@ -139,10 +139,33 @@ const likePostById = async (postId, userId) => {
   }
 };
 
+const getLikePostByMe = async (postId, userId) => {
+  try {
+    return await dataSource.query(
+      `
+      SELECT
+      posts.id AS postId,
+      posts.thumbnail_image AS thumbnailImage,
+      posts.title AS title,
+      posts.content AS content,
+      DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
+      FROM posts
+      INNER JOIN post_like ON posts.id = post_like.post_id
+      WHERE post_like.user_id = 1`,
+      [userId]
+    );
+  } catch (err) {
+    const error = new Error("INVALID_DATA_INPUT");
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
   getUserPosts,
   likePostById,
+  getLikePostByMe,
 };

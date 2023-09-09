@@ -42,10 +42,15 @@ const likePostById = async (postId, userId) => {
   return await postDao.likePostById(postId, userId);
 };
 
+const getLikePostByMe = async (postId, userId) => {
+  return await postDao.getLikePostByMe(postId, userId);
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
   getUserPosts,
   likePostById,
+  getLikePostByMe,
 };

@@ -67,10 +67,21 @@ const likePostById = async (req, res) => {
   return res.status(201).json({ message: "LIKE_SUCCESS" });
 };
 
+const getLikePostByMe = async (req, res) => {
+  try {
+    const result = await postService.getLikePostByMe();
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 400).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
   getMyPosts,
   getUserPosts,
   likePostById,
+  getLikePostByMe,
 };
