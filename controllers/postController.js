@@ -25,7 +25,7 @@ const createPosts = async (req, res) => {
     return res.status(201).json({ message: "POST_CREATED" });
   } catch (err) {
     console.log(err);
-    return res.status(err.statusCode || 500).json({ message: err.message });
+    return res.status(err.statusCode || 400).json({ message: err.message });
   }
 };
 
@@ -35,11 +35,22 @@ const getAllPosts = async (req, res) => {
     return res.status(200).json({ data: result });
   } catch (err) {
     console.log(err);
-    return res.status(err.statusCode || 500).json({ message: err.message });
+    return res.status(err.statusCode || 400).json({ message: err.message });
+  }
+};
+
+const getMyPosts = async (req, res) => {
+  try {
+    const result = await postService.getMyPosts();
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 400).json({ message: err.message });
   }
 };
 
 module.exports = {
   createPosts,
   getAllPosts,
+  getMyPosts,
 };
