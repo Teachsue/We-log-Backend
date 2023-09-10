@@ -10,5 +10,6 @@ router.get("/getUserPosts", postController.getUserPosts);
 router.post("/like/:postId", postController.likePostById);
 router.get("/getLikePostByMe", postController.getLikePostByMe);
 router.get("/getTemporaryPost", postController.getTemporaryPost);
+router.patch("/:postId", postController.modifyPostById);
 
 module.exports = router;

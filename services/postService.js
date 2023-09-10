@@ -50,6 +50,10 @@ const getTemporaryPost = async (postId, userId) => {
   return await postDao.getTemporaryPost(postId, userId);
 };
 
+const modifyPostById = async (title, content, userId, postId) => {
+  return await postDao.modifyPostById(title, content, userId, postId);
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -58,4 +62,5 @@ module.exports = {
   likePostById,
   getLikePostByMe,
   getTemporaryPost,
+  modifyPostById,
 };
