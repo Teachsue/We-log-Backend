@@ -102,12 +102,13 @@ const getUserPosts = async (postId, userId) => {
     boardTypes.id AS boardTypeId,
     users.name AS userName,
     DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt,
-    posts.content AS content
+    posts.content AS content,
+    (SELECT COUNT(*) FROM comments WHERE post_id = ?) AS commentCount
     FROM posts
     INNER JOIN users ON posts.user_id = users.id
     INNER JOIN boardTypes ON posts.boardType_id = boardTypes.id
     WHERE posts.id = 1 AND users.id = 1`,
-    [postId, userId]
+    [postId, postId, userId]
   );
   return results;
 };
@@ -235,6 +236,54 @@ const deletePost = async (postId, userId) => {
   }
 };
 
+const addComment = async (userId, postId, content) => {
+  try {
+    const result = await dataSource.query(
+      `
+        INSERT INTO comments (
+          user_id,
+          post_id,
+          content
+        ) VALUES (
+          ?,
+          ?,
+          ?
+        )
+      `,
+      [userId, postId, content]
+    );
+
+    return result;
+  } catch {
+    const error = new Error("dataSource Error");
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
+const getComment = async (postId) => {
+  try {
+    const result = await dataSource.query(
+      `
+      SELECT
+      comments.user_id AS userId,
+      users.name AS userName,
+      DATE_FORMAT(comments.created_at, '%Y.%m.%d') AS createdAt,
+      comments.content AS content
+      FROM comments
+      INNER JOIN users ON comments.user_id = users.id
+      WHERE comments.post_id = ?
+      `,
+      [postId]
+    );
+    return result;
+  } catch {
+    const error = new Error("dataSource Error");
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -245,4 +294,6 @@ module.exports = {
   getTemporaryPost,
   modifyPostById,
   deletePost,
+  addComment,
+  getComment,
 };

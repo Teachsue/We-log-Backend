@@ -58,6 +58,20 @@ const deletePost = async (postId, userId) => {
   return await postDao.deletePost(postId, userId);
 };
 
+const addComment = async (userId, postId, content) => {
+  return await postDao.addComment(userId, postId, content);
+};
+
+const getComment = async (postId) => {
+  try {
+    const result = await postDao.getComment(postId);
+    return result;
+  } catch (err) {
+    console.error("getComment Error:", err);
+    throw new Error("DATABASE_ERROR");
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -68,4 +82,6 @@ module.exports = {
   getTemporaryPost,
   modifyPostById,
   deletePost,
+  addComment,
+  getComment,
 };

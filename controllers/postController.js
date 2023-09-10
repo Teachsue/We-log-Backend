@@ -109,6 +109,28 @@ const deletePost = async (req, res) => {
   res.status(204).send();
 };
 
+const addComment = async (req, res) => {
+  try {
+    const { userId, postId, content } = req.body;
+    await postService.addComment(userId, postId, content);
+    return res.status(201).json({ message: "COMMENT_CREATED" });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 400).json({ message: err.message });
+  }
+};
+
+const getComment = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const result = await postService.getComment(postId);
+    return res.status(200).json({ data: result });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -119,4 +141,6 @@ module.exports = {
   getTemporaryPost,
   modifyPostById,
   deletePost,
+  addComment,
+  getComment,
 };

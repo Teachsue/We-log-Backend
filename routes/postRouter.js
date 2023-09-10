@@ -11,6 +11,8 @@ router.post("/like/:postId", postController.likePostById);
 router.get("/getLikePostByMe", postController.getLikePostByMe);
 router.get("/getTemporaryPost", postController.getTemporaryPost);
 router.patch("/:postId", postController.modifyPostById);
-router.delete("", postController.deletePost);
+router.delete("/:postId", postController.deletePost);
+router.post("/addComment", postController.addComment);
+router.get("/:postId/getComment", postController.getComment);
 
 module.exports = router;
