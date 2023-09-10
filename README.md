@@ -4,8 +4,9 @@ WeLog 백엔드 API를 직접 구현한다.
 # ERD
 https://dbdiagram.io/d/64f7540802bd1c4a5e037b11
 
-# 설계 가능한 백엔드 API 예상도
-## 메인 Page
+# 설계 가능한 백엔드 API 예상
+
+### 메인 Page
 
 * 회원가입 / signUp
 고객의 이름, 이메일, 비밀번호, 연락처를 기반으로 회원가입.
@@ -23,7 +24,7 @@ bcrypt를 통한 DB저장시에 암호화. (hash를 통한 더욱 더 강력한 
 * 기간 선택(최근 글 불러오기) / 아직 미구현 사항.
 게시글 필터링
 
-## 글 작성하기 Page
+### 글 작성하기 Page
 * 글 작성하기
 게시글 작성 (POST) / createposts, loginRequired
 임시저장 게시글 불러오기 (GET)
@@ -36,7 +37,7 @@ user_id와 post_id로 게시글을 남기도록 구현 (POST)
 * 좋아요 
 특정 유저의 글에 좋아요를 누를 수 있게 함. (POST) / likePostById
 
-## 마이 페이지
+### 마이 페이지
 * 발행한 글 (GET) 
  -> userId 기반 post 불러오기
 * 임시 저장 글 (GET) 
