@@ -100,6 +100,15 @@ const modifyPostById = async (req, res) => {
   return res.status(201).json({ data: modifydata });
 };
 
+const deletePost = async (req, res) => {
+  const { postId } = req.query;
+  const userId = req.user.id;
+
+  await postService.deletePost(postId, userId);
+
+  res.status(204).send();
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -109,4 +118,5 @@ module.exports = {
   getLikePostByMe,
   getTemporaryPost,
   modifyPostById,
+  deletePost,
 };

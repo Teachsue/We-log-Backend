@@ -54,6 +54,10 @@ const modifyPostById = async (title, content, userId, postId) => {
   return await postDao.modifyPostById(title, content, userId, postId);
 };
 
+const deletePost = async (postId, userId) => {
+  return await postDao.deletePost(postId, userId);
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -63,4 +67,5 @@ module.exports = {
   getLikePostByMe,
   getTemporaryPost,
   modifyPostById,
+  deletePost,
 };
