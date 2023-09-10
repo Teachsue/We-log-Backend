@@ -11,5 +11,6 @@ router.post("/like/:postId", postController.likePostById);
 router.get("/getLikePostByMe", postController.getLikePostByMe);
 router.get("/getTemporaryPost", postController.getTemporaryPost);
 router.patch("/:postId", postController.modifyPostById);
+router.delete("", postController.deletePost);
 
 module.exports = router;
