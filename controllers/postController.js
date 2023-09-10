@@ -87,6 +87,19 @@ const getTemporaryPost = async (req, res) => {
   }
 };
 
+const modifyPostById = async (req, res) => {
+  const { title, content, userId } = req.body;
+  const { postId } = req.params;
+
+  const modifydata = await postService.modifyPostById(
+    title,
+    content,
+    userId,
+    postId
+  );
+  return res.status(201).json({ data: modifydata });
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -95,4 +108,5 @@ module.exports = {
   likePostById,
   getLikePostByMe,
   getTemporaryPost,
+  modifyPostById,
 };

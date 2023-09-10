@@ -183,6 +183,34 @@ const getTemporaryPost = async (postId, userId) => {
   }
 };
 
+const modifyPostById = async (title, content, userId, postId) => {
+  await dataSource.query(
+    `
+    UPDATE posts
+    SET title = ?,
+    content = ?
+    WHERE user_id = ? AND id = ?`,
+    [title, content, userId, postId]
+  );
+
+  const modifyPostResult = await dataSource.query(
+    `
+    SELECT
+    posts.title AS title,
+    posts.id AS postId,
+    boardTypes.id AS boardTypeId,
+    users.name AS userName,
+    DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt,
+    posts.content AS content
+    FROM posts
+    INNER JOIN users ON posts.user_id = users.id
+    INNER JOIN boardTypes ON posts.boardType_id = boardTypes.id
+    WHERE posts.id = ? AND users.id = ?`,
+    [postId, userId]
+  );
+  return modifyPostResult;
+};
+
 module.exports = {
   createPosts,
   getAllPosts,
@@ -191,4 +219,5 @@ module.exports = {
   likePostById,
   getLikePostByMe,
   getTemporaryPost,
+  modifyPostById,
 };
