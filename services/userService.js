@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken"); // 2. Json 포맷을 이용하여 사용자에 대한 속성을 저장하는 Claim 기반의 Web Token웹 표준으로써 두 개체에서 JSON 객체를 사용하여 정보를 안전성있게 전달한다.
+// 왜 json? = 특정언어에 종속되지 않으며, 최소한의 용량으로 데이터 전송이 가능하기 떄문이다.
 
 const userDao = require("../models/userDao");
 

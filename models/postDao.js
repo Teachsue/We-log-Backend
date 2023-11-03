@@ -1,4 +1,4 @@
-const dataSource = require("./dataSource");
+const dataSource = require('./dataSource');
 
 const createPosts = async (
   userId,
@@ -8,7 +8,6 @@ const createPosts = async (
   thumbnailImage,
   boardTypeId,
   tag,
-  postText,
   statusId
 ) => {
   try {
@@ -40,77 +39,110 @@ const createPosts = async (
         thumbnailImage,
         boardTypeId,
         tag,
-        postText,
         statusId,
       ]
     );
   } catch (err) {
-    const error = new Error("INVALID_DATA_INPUT");
+    const error = new Error('INVALID_DATA_INPUT');
     error.statusCode = 400;
     throw error;
   }
 };
 
-const getAllPosts = async (
-  userId,
-  title,
-  content,
-  thumbnailImage,
-  statusId,
-  createdAt
-) => {
+const getAllPosts = async () => {
   try {
-    return await dataSource.query(`
-    SELECT 
-    posts.thumbnail_image AS thumbnailImage,
-    users.name AS userName,
-    posts.title,
-    posts.content,
-    posts.status_id AS statusId,
-    DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
-FROM posts
-INNER JOIN users ON posts.user_id = users.id;
-      `);
+    return await dataSource.query(
+      `
+      SELECT 
+        posts.id AS postId,
+        posts.thumbnail_image AS thumbnailImage,
+        posts.title,
+        posts.content,
+        users.name AS userName,
+        DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt,
+        posts.status_id AS statusId,
+        COUNT(DISTINCT post_like.id) AS likeCount,
+        COUNT(DISTINCT comments.id) AS commentCount
+      FROM posts
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_like ON posts.id = post_like.post_id
+        LEFT JOIN comments ON posts.id = comments.post_id
+      WHERE posts.status_id = 1 AND posts.boardType_id <> 2
+      GROUP BY posts.id, posts.thumbnail_image, posts.title, posts.content, users.name, posts.created_at, posts.status_id
+      `
+    );
   } catch (err) {
-    const error = new Error("INVALID_DATA");
+    const error = new Error('INVALID_DATA');
     error.statusCode = 400;
     throw error;
   }
 };
 
 const getMyPosts = async (userId) => {
-  const results = await dataSource.query(
-    `
-  SELECT
-  id AS postId,
-  thumbnail_image AS thumbnailImage,
-  title,
-  content,
-  DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
-  FROM posts
-  WHERE user_id = 1`,
-    [userId]
-  );
-  return results;
+  try {
+    const results = await dataSource.query(
+      `
+      SELECT
+      posts.id AS postId,
+      posts.thumbnail_image AS thumbnailImage,
+      posts.title,
+      posts.content,
+      COUNT(DISTINCT post_like.id) AS likeCount,
+      DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
+    FROM 
+      posts
+      LEFT JOIN post_like ON posts.id = post_like.post_id
+    WHERE 
+      posts.user_id = ?
+    GROUP BY
+      posts.id,
+      posts.thumbnail_image,
+      posts.title,
+      posts.content,
+      posts.created_at
+      `,
+      [userId]
+    );
+    console.log(results);
+    return results;
+  } catch (error) {
+    console.error('Error fetching my posts:', error);
+    throw error; // 적절한 에러 응답을 반환하도록 수정
+  }
 };
 
-const getUserPosts = async (postId, userId) => {
-  const results = await dataSource.query(
-    `
-    SELECT
-    posts.id AS postId,
-    boardTypes.id AS boardTypeId,
-    users.name AS userName,
-    DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt,
-    posts.content AS content,
-    (SELECT COUNT(*) FROM comments WHERE post_id = ?) AS commentCount
-    FROM posts
-    INNER JOIN users ON posts.user_id = users.id
-    INNER JOIN boardTypes ON posts.boardType_id = boardTypes.id
-    WHERE posts.id = 1 AND users.id = 1`,
-    [postId, postId, userId]
-  );
-  return results;
+const getUserPosts = async (postId) => {
+  try {
+    const posts = await dataSource.query(
+      `
+      SELECT
+      posts.id AS postId,
+      b.id AS boardTypeId,
+      users.name AS userName,
+      DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt,
+      posts.content AS content,
+      posts.tag AS postTag,
+      (SELECT COUNT(*) FROM comments WHERE post_id = ?) AS commentCount,
+      COUNT(DISTINCT post_like.id) AS likeCount
+      FROM posts
+      INNER JOIN users ON posts.user_id = users.id
+      INNER JOIN boardTypes AS b ON posts.boardType_id = b.id
+      INNER JOIN post_like ON posts.id = post_like.post_id
+      WHERE posts.id = ?`,
+      [postId, postId]
+    );
+    //console.log(posts);
+    posts.forEach((post) => {
+      post['postTag'] = post['postTag'].split(',');
+    });
+
+    return posts;
+  } catch {
+    const error = new Error('DATASOURCE_ERROR');
+    error.statusCode = 400;
+
+    throw error;
+  }
 };
 
 const likePostById = async (postId, userId) => {
@@ -125,16 +157,17 @@ const likePostById = async (postId, userId) => {
         `DELETE FROM post_like WHERE post_id = ? AND user_id = ?`,
         [postId, userId]
       );
-      return { message: "LIKE_CANCEL" };
+      return { message: 'LIKE_CANCEL' };
     } else {
       await dataSource.query(
         `INSERT INTO post_like (user_id, post_id) VALUES (?, ?)`,
         [userId, postId]
       );
-      return { message: "LIKE" };
+      return { message: 'LIKE' };
     }
   } catch (err) {
-    const error = new Error("INVALID_DATA_INPUT");
+    console.log(err);
+    const error = new Error('INVALID_DATA_INPUT');
     error.statusCode = 400;
     throw error;
   }
@@ -152,11 +185,11 @@ const getLikePostByMe = async (postId, userId) => {
       DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
       FROM posts
       INNER JOIN post_like ON posts.id = post_like.post_id
-      WHERE post_like.user_id = 1`,
+      WHERE post_like.user_id = ?`,
       [userId]
     );
   } catch (err) {
-    const error = new Error("INVALID_DATA_INPUT");
+    const error = new Error('INVALID_DATA_INPUT');
     error.statusCode = 400;
     throw error;
   }
@@ -164,7 +197,7 @@ const getLikePostByMe = async (postId, userId) => {
 
 const getTemporaryPost = async (postId, userId) => {
   try {
-    return await dataSource.query(
+    const result = await dataSource.query(
       `
       SELECT
       posts.id AS postId,
@@ -174,11 +207,12 @@ const getTemporaryPost = async (postId, userId) => {
       DATE_FORMAT(posts.created_at, '%Y.%m.%d') AS createdAt
       FROM posts
       INNER JOIN post_status ON posts.status_id = post_status.id
-      WHERE post_status.id = 2`,
-      [userId]
+      WHERE post_status.id = ? AND posts.user_id = ?`,
+      [2, userId]
     );
+    console.log(result);
   } catch (err) {
-    const error = new Error("INVALID_DATA_INPUT");
+    const error = new Error('INVALID_DATA_INPUT');
     error.statusCode = 400;
     throw error;
   }
@@ -191,8 +225,8 @@ const modifyPostById = async (title, content, userId, postId) => {
       UPDATE posts
       SET title = ?,
       content = ?
-      WHERE user_id = ? AND id = ?`,
-      [title, content, userId, postId]
+      WHERE posts.id = ? AND user_id = ?`,
+      [title, content, postId, userId]
     );
 
     const modifyPostResult = await dataSource.query(
@@ -213,7 +247,7 @@ const modifyPostById = async (title, content, userId, postId) => {
 
     return modifyPostResult;
   } catch (err) {
-    const error = new Error("MODIFYING_ERROR");
+    const error = new Error('MODIFYING_ERROR');
     error.statusCode = 400;
     throw error;
   }
@@ -221,18 +255,44 @@ const modifyPostById = async (title, content, userId, postId) => {
 
 const deletePost = async (postId, userId) => {
   try {
-    await dataSource.query(
-      `
-      DELETE
-      FROM posts
-      WHERE id = 1 AND user_id = 1`,
+    // Disable foreign key checks
+    await dataSource.query('SET FOREIGN_KEY_CHECKS = 0');
+
+    // Check if the post exists
+    const existingPost = await dataSource.query(
+      'SELECT posts.id FROM posts WHERE posts.id = ? AND posts.user_id = ?',
       [postId, userId]
     );
-  } catch {
-    const error = new Error("DATA_ERROR");
-    error.statusCode = 400;
 
+    if (existingPost.length === 0) {
+      // If the post does not exist, throw an error
+      const error = new Error('Post not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Delete the post
+    const result = await dataSource.query(
+      'DELETE FROM posts WHERE id = ? AND user_id = ?',
+      [postId, userId]
+    );
+
+    const deletedRows = result.affectedRows;
+
+    if (deletedRows !== 1) {
+      // If the number of deleted rows is not 1, throw an error
+      const error = new Error('Unexpected number of records deleted');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    return { message: '게시글이 성공적으로 삭제되었습니다.' };
+  } catch (error) {
+    console.error('Error deleting post:', error);
     throw error;
+  } finally {
+    // Enable foreign key checks again
+    await dataSource.query('SET FOREIGN_KEY_CHECKS = 1');
   }
 };
 
@@ -255,7 +315,7 @@ const addComment = async (userId, postId, content) => {
 
     return result;
   } catch {
-    const error = new Error("dataSource Error");
+    const error = new Error('dataSource Error');
     error.statusCode = 400;
     throw error;
   }
@@ -278,9 +338,34 @@ const getComment = async (postId) => {
     );
     return result;
   } catch {
-    const error = new Error("dataSource Error");
+    const error = new Error('dataSource Error');
     error.statusCode = 400;
     throw error;
+  }
+};
+
+const uploadPostImage = async (postId, image) => {
+  try {
+    // Update post image using a prepared statement
+    const updateResult = await dataSource.query(
+      'UPDATE posts SET post_image = ? WHERE id = ?',
+      [image, postId]
+    );
+
+    if (updateResult.affectedRows !== 1) {
+      throw new Error('INVALID_MODIFICATION');
+    }
+
+    // Retrieve modified image using a prepared statement
+    const modifyImageResult = await dataSource.query(
+      'SELECT id, post_image AS postImage FROM posts WHERE id = ?',
+      [postId]
+    );
+
+    return modifyImageResult;
+  } catch (error) {
+    console.error('Error uploading post image:', error);
+    throw new Error('INVALID_DATA');
   }
 };
 
@@ -296,4 +381,5 @@ module.exports = {
   deletePost,
   addComment,
   getComment,
+  uploadPostImage,
 };
