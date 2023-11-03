@@ -1,4 +1,4 @@
-const postDao = require("../models/postDao");
+const postDao = require('../models/postDao');
 
 const createPosts = async (
   userId,
@@ -10,7 +10,7 @@ const createPosts = async (
   tag,
   statusId
 ) => {
-  const posting = await postDao.createPosts(
+  return await postDao.createPosts(
     userId,
     title,
     content,
@@ -20,22 +20,19 @@ const createPosts = async (
     tag,
     statusId
   );
-  return posting;
 };
 
-const getAllPosts = async (req, res) => {
-  const getAllPosts = await postDao.getAllPosts();
-  return getAllPosts;
+const getAllPosts = async () => {
+  return await postDao.getAllPosts();
 };
 
-const getMyPosts = async (userId) => {
-  const getMyPosts = await postDao.getMyPosts(userId);
+const getMyPosts = async (user) => {
+  const getMyPosts = await postDao.getMyPosts(user.id);
   return getMyPosts;
 };
 
-const getUserPosts = async (userId) => {
-  const getUserPosts = await postDao.getUserPosts(userId);
-  return getUserPosts;
+const getUserPosts = async (postId) => {
+  return await postDao.getUserPosts(postId);
 };
 
 const likePostById = async (postId, userId) => {
@@ -67,8 +64,16 @@ const getComment = async (postId) => {
     const result = await postDao.getComment(postId);
     return result;
   } catch (err) {
-    console.error("getComment Error:", err);
-    throw new Error("DATABASE_ERROR");
+    console.error('getComment Error:', err);
+    throw new Error('DATABASE_ERROR');
+  }
+};
+
+const uploadPostImage = async (postId, image) => {
+  try {
+    return await postDao.uploadPostImage(postId, image);
+  } catch (err) {
+    throw new Error('COULD_NOT_PROCESS_REQUEST');
   }
 };
 
@@ -84,4 +89,5 @@ module.exports = {
   deletePost,
   addComment,
   getComment,
+  uploadPostImage,
 };
